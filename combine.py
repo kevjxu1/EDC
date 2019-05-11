@@ -30,7 +30,7 @@ def applyMatchRules(stdList, lis):
 
     def isTypo(s0, s1):
         return (len(s0) >= 5 and len(s1) >= 5 and
-                1 <= editDistance(s0, s1) <= max(countNonAlpha(s0), countNonAlpha(s1)))
+                1 <= editDistance(s0, s1) <= max(1, countNonAlpha(s0), countNonAlpha(s1)))
 
     def isEquivalent(s0, s1):
         table = { 'btsm': 'black tiger sex machine' }
@@ -53,7 +53,7 @@ def applyMatchRules(stdList, lis):
     for i in range(len(stdList)):
         for j in range(len(lis)):
             if isTypo(stdList[i], lis[j]) or isEquivalent(stdList[i], lis[j]):
-                new[j] = lis[j]
+                new[j] = stdList[i]
 
     for j in range(len(lis)):
         if j in new:
@@ -61,22 +61,8 @@ def applyMatchRules(stdList, lis):
 
     return
 
-def readFile(path):
-    with open(path, 'r') as f:
-        lines = [ l.rstrip() for l in f.readlines() ]
 
-    lis = []
-    name = lines[0].rstrip()
-    for l in lines[1 :]:
-        if l == '':
-            continue
-        else:
-            lis.append(l)
-
-    return name, lis
-
-
-def preprocess(lis):
+def preprocess(s):
     def cutPresents(s):
         i = s.find(' presents ')
         return s if i < 0 else s[:i]
@@ -85,27 +71,71 @@ def preprocess(lis):
         i = s.find('(')
         return s if i < 0 else s[:i]
 
-    res = [ x.lower().replace('&', 'and').rstrip() for x in lis ]
-    res = [ cutPresents(s) for s in res ]
-    res = [ cutParens(s) for s in res ]
-    return res
+    res = s.lower().replace('&', 'and').rstrip()
+    res = cutPresents(res)
+    res = cutParens(res)
+    return res.rstrip()
+
+
+def readFile(path):
+
+    with open(path, 'r') as f:
+        lines = [ l.rstrip() for l in f.readlines() ]
+
+    fri, sat, sun = [], [], []
+    name = lines[0].rstrip()
+    dupes = set()
+    for l in lines[1 :]:
+        e = preprocess(l)
+        if e == '' or e in dupes:
+            continue
+        elif e.startswith('friday'):
+            lis = fri
+            dupes.clear()
+        elif e.startswith('saturday'):
+            lis = sat
+            dupes.clear()
+        elif e.startswith('sunday'):
+            lis = sun
+            dupes.clear()
+        else:
+            lis.append(e)
+            dupes.add(e)
+
+    return name, fri, sat, sun
+
 
 if __name__ == '__main__':
     first = sys.argv[1]
-    firstName, firstList = readFile(first)
-    firstList = preprocess(firstList)
-    firstList = list(set(firstList))
-    m = defaultdict(list)
-    for x in firstList:
-        m[x].append(firstName)
+    firstName, firstFri, firstSat, firstSun = readFile(first)
+    fri, sat, sun = defaultdict(list), defaultdict(list), defaultdict(list)
+    for x in firstFri:
+        fri[x].append(firstName)
+    for x in firstSat:
+        sat[x].append(firstName)
+    for x in firstSun:
+        sun[x].append(firstName)
 
     for i in range(2, len(sys.argv)):
-        name, lis = readFile(sys.argv[i])
-        lis = preprocess(lis)
-        lis = list(set(lis))
-        applyMatchRules(firstList, lis)
-        for x in lis:
-            m[x].append(name)
+        name, secFri,secSat, secSun = readFile(sys.argv[i])
+        applyMatchRules(firstFri, secFri)
+        applyMatchRules(firstSat, secSat)
+        applyMatchRules(firstSun, secSun)
+        for x in secFri:
+            fri[x].append(name)
+        for x in secSat:
+            sat[x].append(name)
+        for x in secSun:
+            sun[x].append(name)
 
-    for k in sorted(m.keys()):
-        print(k, m[k])
+    print('Friday')
+    for k in sorted(fri.keys()):
+        print(k, fri[k])
+    print('')
+    print('Saturday')
+    for k in sorted(sat.keys()):
+        print(k, sat[k])
+    print('')
+    print('Sunday')
+    for k in sorted(sun.keys()):
+        print(k, sun[k])
