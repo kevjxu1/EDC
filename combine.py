@@ -24,6 +24,7 @@ def editDistance(sA, sB):
     return opt[len(big) % 2][len(small)]
 
 def applyMatchRules(stdList, lis):
+    """Replaces each in lis to the corresponding element in stdList if they 'match'"""
 
     def countNonAlpha(s):
         return reduce(lambda acc, c: acc + (0 if c.isalpha() else 1), s, 0)
@@ -41,14 +42,6 @@ def applyMatchRules(stdList, lis):
         else:
             return s0 == s1
 
-    def cutPresents(s0, s1):
-        i = s0.find(' presents ')
-        t0 = s0[: i] if i >= 0 else s0
-        j = s1.find(' presents ')
-        t1 = s1[: j] if j >= 0 else s1
-        return t0 == t1
-
-
     new = dict()
     for i in range(len(stdList)):
         for j in range(len(lis)):
@@ -63,6 +56,8 @@ def applyMatchRules(stdList, lis):
 
 
 def preprocess(s):
+    """@param s - string
+       @return - preprocessed string"""
     def cutPresents(s):
         i = s.find(' presents ')
         return s if i < 0 else s[:i]
@@ -107,26 +102,30 @@ def readFile(path):
 
 if __name__ == '__main__':
     first = sys.argv[1]
-    firstName, firstFri, firstSat, firstSun = readFile(first)
+    firstName, mainFri, mainSat, mainSun = readFile(first)
     fri, sat, sun = defaultdict(list), defaultdict(list), defaultdict(list)
-    for x in firstFri:
+    for x in mainFri:
         fri[x].append(firstName)
-    for x in firstSat:
+    for x in mainSat:
         sat[x].append(firstName)
-    for x in firstSun:
+    for x in mainSun:
         sun[x].append(firstName)
 
     for i in range(2, len(sys.argv)):
         name, secFri,secSat, secSun = readFile(sys.argv[i])
-        applyMatchRules(firstFri, secFri)
-        applyMatchRules(firstSat, secSat)
-        applyMatchRules(firstSun, secSun)
+        applyMatchRules(mainFri, secFri)
+        applyMatchRules(mainSat, secSat)
+        applyMatchRules(mainSun, secSun)
         for x in secFri:
             fri[x].append(name)
         for x in secSat:
             sat[x].append(name)
         for x in secSun:
             sun[x].append(name)
+
+        mainFri = list(fri.keys())
+        mainSat = list(sat.keys())
+        mainSun = list(sun.keys())
 
     print('Friday')
     for k in sorted(fri.keys()):
