@@ -1,4 +1,27 @@
 #!/usr/local/bin/python3
+"""
+This is a script that takes lists of artists and prints the list author's name
+next to each artist that the list contains.
+
+List format:
+Author Name
+
+Friday
+Artist0
+Artist1
+...
+
+Saturday
+Artist2
+Artist3
+...
+
+Sunday
+Artist4
+Artist5
+...
+"""
+
 from collections import defaultdict
 import sys
 from functools import reduce
