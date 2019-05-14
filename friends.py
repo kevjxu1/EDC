@@ -3,6 +3,9 @@ from collections import defaultdict
 import sys
 from functools import reduce
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 def formatTime(time):
     """@param time - like '10:46 PM - 11:59 PM'
        @return start, end - where each is 24HR time"""
@@ -171,7 +174,14 @@ def readFile(path):
     return name, fri, sat, sun
 
 
+def usageExit():
+    eprint('Usage: ' + sys.argv[0] + ' list0 {, list1, list2, ...}')
+    sys.exit(1)
+
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        usageExit()
+
     friFriends, satFriends, sunFriends = defaultdict(list), defaultdict(list), defaultdict(list)
     friSchedule = getSchedule('friday.txt')
     satSchedule = getSchedule('saturday.txt')
@@ -181,11 +191,11 @@ if __name__ == '__main__':
         applyMatchRules([ x[1] for x in friSchedule ], secFri)
         applyMatchRules([ x[1] for x in satSchedule ], secSat)
         applyMatchRules([ x[1] for x in sunSchedule ], secSun)
-        for x in secFri:
+        for x in list(set(secFri)):
             friFriends[x].append(name)
-        for x in secSat:
+        for x in list(set(secSat)):
             satFriends[x].append(name)
-        for x in secSun:
+        for x in list(set(secSun)):
             sunFriends[x].append(name)
 
         mainFri = list(friFriends.keys())
