@@ -1,30 +1,7 @@
 #!/usr/local/bin/python3
-"""
-This is a script that takes lists of artists and prints the list author's name
-next to each artist that the list contains.
-
-List format:
-Author Name
-
-Friday
-Artist0
-Artist1
-...
-
-Saturday
-Artist2
-Artist3
-...
-
-Sunday
-Artist4
-Artist5
-...
-"""
 from collections import defaultdict
 import sys
 from functools import reduce
-
 
 def formatTime(time):
     """@param time - like '10:46 PM - 11:59 PM'
@@ -40,11 +17,21 @@ def formatTime(time):
     pair = time.split(' - ')
     return to24Time(pair[0]), to24Time(pair[1])
 
+def findFirstGte(lis, hour):
+    """@param lis - list sorted in ascending order
+       @return position of first element that is >= target"""
+    i = 0
+    for i, x in enumerate(lis):
+        if x >= hour:
+            return i
+
+    return len(lis)
 
 def getSchedule(dayFile):
     """@return times, stages - each is a map with artist name as key. times maps
                to time range and stages maps to stage
     """
+
     schedule = []  # each element is (time, artist, stage)
     with open(dayFile, 'r') as f:
         lines = [ l.rstrip() for l in f.readlines() ]
@@ -62,7 +49,12 @@ def getSchedule(dayFile):
         else:
             stage = line
 
-    return sorted(schedule)
+    schedule.sort()
+
+    # assume festival does not start before 16:00, and rotate schedule accordingly
+    i = findFirstGte([int(x[0][0].split(':')[0]) for x in schedule], 16)
+    schedule = schedule[i :] + schedule[: i]
+    return schedule
 
 
 def editDistance(sA, sB):
