@@ -218,10 +218,6 @@ if __name__ == '__main__':
         for x in list(set(secSun)):
             sunFriends[x].append(name)
 
-        mainFri = list(friFriends.keys())
-        mainSat = list(satFriends.keys())
-        mainSun = list(sunFriends.keys())
-
     print('Friday')
     for time, artist, stage in friSchedule:
         if artist in friFriends:
