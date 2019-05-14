@@ -165,13 +165,13 @@ def readFile(path):
 if __name__ == '__main__':
     first = sys.argv[1]
     firstName, mainFri, mainSat, mainSun = readFile(first)
-    fri, sat, sun = defaultdict(list), defaultdict(list), defaultdict(list)
+    friFriends, satFriends, sunFriends = defaultdict(list), defaultdict(list), defaultdict(list)
     for x in mainFri:
-        fri[x].append(firstName)
+        friFriends[x].append(firstName)
     for x in mainSat:
-        sat[x].append(firstName)
+        satFriends[x].append(firstName)
     for x in mainSun:
-        sun[x].append(firstName)
+        sunFriends[x].append(firstName)
 
     friSchedule = getSchedule('friday.txt')
     satSchedule = getSchedule('saturday.txt')
@@ -182,30 +182,30 @@ if __name__ == '__main__':
         applyMatchRules([ x[1] for x in satSchedule ], secSat)
         applyMatchRules([ x[1] for x in sunSchedule ], secSun)
         for x in secFri:
-            fri[x].append(name)
+            friFriends[x].append(name)
         for x in secSat:
-            sat[x].append(name)
+            satFriends[x].append(name)
         for x in secSun:
-            sun[x].append(name)
+            sunFriends[x].append(name)
 
-        mainFri = list(fri.keys())
-        mainSat = list(sat.keys())
-        mainSun = list(sun.keys())
+        mainFri = list(friFriends.keys())
+        mainSat = list(satFriends.keys())
+        mainSun = list(sunFriends.keys())
 
     print('Friday')
     for time, artist, stage in friSchedule:
-        if artist in fri:
-            csv = '%s,%s,%s,%s' % ( str(time), artist, stage, str(fri[artist]) )
+        if artist in friFriends:
+            csv = '%s,%s,%s,%s' % ( str(time), artist, stage, str(friFriends[artist]) )
             print(csv)
     print('')
     print('Saturday')
     for time, artist, stage in satSchedule:
-        if artist in sat:
-            csv = '%s,%s,%s,%s' % ( str(time), artist, stage, str(sat[artist]) )
+        if artist in satFriends:
+            csv = '%s,%s,%s,%s' % ( str(time), artist, stage, str(satFriends[artist]) )
             print(csv)
     print('')
     print('Sunday')
     for time, artist, stage in sunSchedule:
-        if artist in sun:
-            csv = '%s,%s,%s,%s' % ( str(time), artist, stage, str(sun[artist]) )
+        if artist in sunFriends:
+            csv = '%s,%s,%s,%s' % ( str(time), artist, stage, str(sunFriends[artist]) )
             print(csv)
