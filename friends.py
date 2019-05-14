@@ -1,4 +1,24 @@
 #!/usr/local/bin/python3
+"""
+This script reads each list of DJs and combines the data into a spreadsheet.
+Each list is formatted like the following:
+
+name
+friday
+artist0
+artist1
+...
+
+saturday
+artisti
+artistj
+...
+
+sunday
+artistii
+artistjj
+...
+"""
 from collections import defaultdict
 import sys
 from functools import reduce
