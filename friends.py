@@ -127,6 +127,22 @@ def preprocess(s):
 
 
 def readFile(path):
+    """Format:
+       name
+       friday
+       artistX
+       artistY
+       artistZ
+
+       saturday
+       artistI
+       artistJ
+       artistL
+
+       sunday
+       artistX
+       artistY
+    """
 
     with open(path, 'r') as f:
         lines = [ l.rstrip() for l in f.readlines() ]
@@ -134,7 +150,8 @@ def readFile(path):
     fri, sat, sun = [], [], []
     name = lines[0].rstrip()
     dupes = set()
-    for l in lines[1 :]:
+    for i in range(1, len(lines)):
+        l = lines[i]
         e = preprocess(l)
         if e == '' or e in dupes:
             continue
@@ -155,20 +172,11 @@ def readFile(path):
 
 
 if __name__ == '__main__':
-    first = sys.argv[1]
-    firstName, mainFri, mainSat, mainSun = readFile(first)
     friFriends, satFriends, sunFriends = defaultdict(list), defaultdict(list), defaultdict(list)
-    for x in mainFri:
-        friFriends[x].append(firstName)
-    for x in mainSat:
-        satFriends[x].append(firstName)
-    for x in mainSun:
-        sunFriends[x].append(firstName)
-
     friSchedule = getSchedule('friday.txt')
     satSchedule = getSchedule('saturday.txt')
     sunSchedule = getSchedule('sunday.txt')
-    for i in range(2, len(sys.argv)):
+    for i in range(1, len(sys.argv)):
         name, secFri,secSat, secSun = readFile(sys.argv[i])
         applyMatchRules([ x[1] for x in friSchedule ], secFri)
         applyMatchRules([ x[1] for x in satSchedule ], secSat)
