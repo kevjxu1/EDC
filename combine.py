@@ -21,10 +21,49 @@ Artist4
 Artist5
 ...
 """
-
 from collections import defaultdict
 import sys
 from functools import reduce
+
+
+def formatTime(time):
+    """@param time - like '10:46 PM - 11:59 PM'
+       @return start, end - where each is 24HR time"""
+
+    def to24Time(t):
+        hh, mm = t[: len(t) - 3].split(':')
+        if t.endswith('PM'):
+            hh = (int(hh) + 12) % 24
+
+        return str(hh) + ':' + str(mm)
+
+    pair = time.split(' - ')
+    return to24Time(pair[0]), to24Time(pair[1])
+
+
+def getSchedule(dayFile):
+    """@return times, stages - each is a map with artist name as key. times maps
+               to time range and stages maps to stage
+    """
+    schedule = []  # each element is (time, artist, stage)
+    with open(dayFile, 'r') as f:
+        lines = [ l.rstrip() for l in f.readlines() ]
+
+    stage = None
+    for line in lines:
+        if line == '':
+            continue
+        elif ',' in line:
+            # artist,time where each time is like '10:46 PM - 11:59 PM'
+            artist, time = line.split(',')
+            artist = preprocess(artist)
+            time = formatTime(time)
+            schedule.append((time, artist, stage))
+        else:
+            stage = line
+
+    return sorted(schedule)
+
 
 def editDistance(sA, sB):
     if len(sA) <= len(sB):
@@ -134,11 +173,14 @@ if __name__ == '__main__':
     for x in mainSun:
         sun[x].append(firstName)
 
+    friSchedule = getSchedule('friday.txt')
+    satSchedule = getSchedule('saturday.txt')
+    sunSchedule = getSchedule('sunday.txt')
     for i in range(2, len(sys.argv)):
         name, secFri,secSat, secSun = readFile(sys.argv[i])
-        applyMatchRules(mainFri, secFri)
-        applyMatchRules(mainSat, secSat)
-        applyMatchRules(mainSun, secSun)
+        applyMatchRules([ x[1] for x in friSchedule ], secFri)
+        applyMatchRules([ x[1] for x in satSchedule ], secSat)
+        applyMatchRules([ x[1] for x in sunSchedule ], secSun)
         for x in secFri:
             fri[x].append(name)
         for x in secSat:
@@ -151,13 +193,19 @@ if __name__ == '__main__':
         mainSun = list(sun.keys())
 
     print('Friday')
-    for k in sorted(fri.keys()):
-        print(k, fri[k])
+    for time, artist, stage in friSchedule:
+        if artist in fri:
+            csv = '%s,%s,%s,%s' % ( str(time), artist, stage, str(fri[artist]) )
+            print(csv)
     print('')
     print('Saturday')
-    for k in sorted(sat.keys()):
-        print(k, sat[k])
+    for time, artist, stage in satSchedule:
+        if artist in sat:
+            csv = '%s,%s,%s,%s' % ( str(time), artist, stage, str(sat[artist]) )
+            print(csv)
     print('')
     print('Sunday')
-    for k in sorted(sun.keys()):
-        print(k, sun[k])
+    for time, artist, stage in sunSchedule:
+        if artist in sun:
+            csv = '%s,%s,%s,%s' % ( str(time), artist, stage, str(sun[artist]) )
+            print(csv)
