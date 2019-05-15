@@ -34,6 +34,8 @@ def formatTime(time):
         hh, mm = t[: len(t) - 3].split(':')
         if t.endswith('PM'):
             hh = (int(hh) + 12) % 24
+        else:
+            hh = int(hh) % 12
 
         return str(hh) + ':' + str(mm)
 
@@ -59,6 +61,14 @@ def getSchedule(dayFile):
                to time range and stages maps to stage
     """
 
+    def timeToMinutes(time):
+        hh, mm = time.split(':')
+        return int(hh) * 60 + int(mm)
+
+    def eventSortKey(t):
+        (start, end), artist, stage = t
+        return ((timeToMinutes(start), timeToMinutes(end)), artist, stage)
+
     schedule = []  # each element is (time, artist, stage)
     with open(dayFile, 'r') as f:
         lines = [ l.rstrip() for l in f.readlines() ]
@@ -76,7 +86,7 @@ def getSchedule(dayFile):
         else:
             stage = line
 
-    schedule.sort()
+    schedule.sort(key=eventSortKey)
 
     # assume festival does not start before 16:00, and rotate schedule accordingly
     i = findFirstGte([int(x[0][0].split(':')[0]) for x in schedule], 16)
