@@ -40,15 +40,19 @@ def formatTime(time):
     pair = time.split(' - ')
     return to24Time(pair[0]), to24Time(pair[1])
 
-def findFirstGte(lis, hour):
-    """@param lis - list sorted in ascending order
-       @return position of first element that is >= target"""
-    i = 0
-    for i, x in enumerate(lis):
-        if x >= hour:
-            return i
+def findFirstGte(lis, x):
+    if len(lis) == 0 or x > lis[len(lis) - 1]:
+        return len(lis)
 
-    return len(lis)
+    first, last = 0, len(lis) - 1
+    while first < last:
+        mid = first + (last - first) // 2
+        if lis[mid] < x:
+            first = mid + 1
+        else:
+            last = mid
+
+    return first
 
 def getSchedule(dayFile):
     """@return times, stages - each is a map with artist name as key. times maps
@@ -76,8 +80,11 @@ def getSchedule(dayFile):
 
     # assume festival does not start before 16:00, and rotate schedule accordingly
     i = findFirstGte([int(x[0][0].split(':')[0]) for x in schedule], 16)
-    schedule = schedule[i :] + schedule[: i]
-    return schedule
+    if i == len(schedule):
+        return schedule
+    else:
+        schedule = schedule[i :] + schedule[: i]
+        return schedule
 
 
 def editDistance(sA, sB):
